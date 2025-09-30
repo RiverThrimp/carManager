@@ -7,7 +7,7 @@ import weekOfYear from 'dayjs/plugin/weekOfYear';
 import weekYear from 'dayjs/plugin/weekYear';
 import { useEffect, useState } from 'react';
 import { api } from '../api/client';
-import { ReportTrackMap, type TrackPoint } from '../components/ReportTrackMap';
+import { TrackMap, type TrackPoint } from '../components/TrackMap';
 
 dayjs.extend(isoWeek);
 dayjs.extend(weekOfYear);
@@ -401,7 +401,7 @@ export const ReportsPage = () => {
         size="small"
         extra={selectedVehiclePlate ? `车辆：${selectedVehiclePlate}` : undefined}
       >
-        <ReportTrackMap points={trackPoints} loading={trackLoading} />
+        <TrackMap points={trackPoints} loading={trackLoading} />
       </Card>
     </Space>
   );

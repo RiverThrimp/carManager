@@ -4,11 +4,13 @@ import {
   Column,
   CreateDateColumn,
   ManyToOne,
-  JoinColumn
+  JoinColumn,
+  Index
 } from 'typeorm';
 import { Vehicle } from './vehicle.entity';
 
 @Entity({ name: 'positions' })
+@Index(['vehicle', 'recordedAt'])
 export class Position {
   @PrimaryGeneratedColumn('uuid')
   id!: string;

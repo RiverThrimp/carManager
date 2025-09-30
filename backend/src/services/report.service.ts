@@ -64,6 +64,7 @@ interface YearlyReportView {
 type DailyAccumulator = DailyReportView & {
   _lastLat?: number;
   _lastLon?: number;
+  _lastSpeed?: number;
 };
 
 type WeeklyAccumulator = WeeklyReportView & {
@@ -130,12 +131,14 @@ export class ReportService {
         );
       }
 
-      acc._lastLat = sample.latitude;
-      acc._lastLon = sample.longitude;
-
-      if (sample.speed <= 1) {
+      // Count a stop when transitioning from moving (speed > 1) to stopped (speed <= 1)
+      if (sample.speed <= 1 && acc._lastSpeed !== undefined && acc._lastSpeed > 1) {
         acc.totalStops += 1;
       }
+
+      acc._lastLat = sample.latitude;
+      acc._lastLon = sample.longitude;
+      acc._lastSpeed = sample.speed;
     }
 
     return Array.from(byKey.values())

@@ -16,11 +16,16 @@ export class PositionService {
   private readonly vehicleRepository = AppDataSource.getRepository(Vehicle);
 
   async ingest(vehicleKey: string, input: PositionInput) {
-    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    const vehicle = uuidPattern.test(vehicleKey)
-      ? (await this.vehicleRepository.findOneBy({ id: vehicleKey })) ??
-        (await this.vehicleRepository.findOneBy({ deviceId: vehicleKey }))
-      : await this.vehicleRepository.findOneBy({ deviceId: vehicleKey });
+    // Try to find vehicle by deviceId first (most common case for JT808)
+    let vehicle = await this.vehicleRepository.findOneBy({ deviceId: vehicleKey });
+
+    // If not found and vehicleKey looks like a UUID, try finding by ID
+    if (!vehicle) {
+      const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (uuidPattern.test(vehicleKey)) {
+        vehicle = await this.vehicleRepository.findOneBy({ id: vehicleKey });
+      }
+    }
 
     if (!vehicle) {
       throw Object.assign(new Error('Vehicle not found'), { status: 404 });

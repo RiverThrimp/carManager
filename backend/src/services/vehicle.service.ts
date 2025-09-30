@@ -62,6 +62,10 @@ export class VehicleService {
   }
 
   async remove(id: string) {
+    const vehicle = await this.repository.findOneBy({ id });
+    if (!vehicle) {
+      throw Object.assign(new Error('Vehicle not found'), { status: 404 });
+    }
     await this.repository.delete(id);
   }
 }

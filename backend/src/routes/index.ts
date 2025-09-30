@@ -7,6 +7,7 @@ import { trackRouter } from './track.routes';
 import { reportRouter } from './report.routes';
 import { alarmRouter } from './alarm.routes';
 import { positionRouter } from './position.routes';
+import { authenticate } from '../middleware/auth.middleware';
 
 export const registerRoutes = (app: Express) => {
   const router = Router();
@@ -16,12 +17,14 @@ export const registerRoutes = (app: Express) => {
   });
 
   router.use('/auth', authRouter);
-  router.use('/vehicles', vehicleRouter);
-  router.use('/drivers', driverRouter);
-  router.use('/track', trackRouter);
-  router.use('/positions', positionRouter);
-  router.use('/report', reportRouter);
-  router.use('/alarm', alarmRouter);
+
+  // Protected routes - require authentication
+  router.use('/vehicles', authenticate, vehicleRouter);
+  router.use('/drivers', authenticate, driverRouter);
+  router.use('/track', authenticate, trackRouter);
+  router.use('/positions', authenticate, positionRouter);
+  router.use('/report', authenticate, reportRouter);
+  router.use('/alarm', authenticate, alarmRouter);
 
   app.use('/api', router);
 };

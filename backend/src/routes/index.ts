@@ -8,13 +8,13 @@ import { reportRouter } from './report.routes';
 import { alarmRouter } from './alarm.routes';
 import { positionRouter } from './position.routes';
 import { authenticate } from '../middleware/auth.middleware';
+import { HealthController } from '../controllers/health.controller';
 
 export const registerRoutes = (app: Express) => {
   const router = Router();
+  const healthController = new HealthController();
 
-  router.get('/health', (_req, res) => {
-    res.json({ status: 'ok' });
-  });
+  router.get('/health', healthController.check);
 
   router.use('/auth', authRouter);
 

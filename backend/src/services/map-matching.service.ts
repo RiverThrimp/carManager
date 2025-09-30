@@ -6,24 +6,37 @@ export class MapMatchingService {
   private readonly baseUrl = process.env.MAP_MATCHER_URL;
 
   async match(points: TrackPoint[]): Promise<TrackPoint[]> {
+    console.log('[MapMatching] Service initialized:', {
+      enabled: Boolean(this.baseUrl),
+      baseUrl: this.baseUrl,
+      pointsCount: points.length
+    });
+
     if (!this.baseUrl || points.length < 2) {
+      console.log('[MapMatching] Skipping - service disabled or insufficient points');
       return points;
     }
 
     const chunks = this.chunkPoints(points, MAX_POINTS_PER_REQUEST);
     const matchedChunks: TrackPoint[][] = [];
 
+    console.log(`[MapMatching] Processing ${chunks.length} chunks`);
+
     for (const chunk of chunks) {
       try {
+        console.log(`[MapMatching] Matching chunk with ${chunk.length} points...`);
         const matched = await this.requestMatch(chunk);
+        console.log(`[MapMatching] Matched successfully, got ${matched.length} points`);
         matchedChunks.push(matched);
       } catch (error) {
-        console.error('Map matching failed, falling back to raw points', error);
+        console.error('[MapMatching] Failed, falling back to raw points:', error);
         matchedChunks.push(chunk);
       }
     }
 
-    return matchedChunks.flat();
+    const result = matchedChunks.flat();
+    console.log(`[MapMatching] Total matched points: ${result.length}`);
+    return result;
   }
 
   private chunkPoints(points: TrackPoint[], size: number) {
@@ -42,6 +55,8 @@ export class MapMatchingService {
     const timestamps = points.map((point) => Math.floor(new Date(point.recordedAt).getTime() / 1000)).join(';');
 
     const url = `${this.baseUrl}/match/v1/driving/${coordinates}?annotations=duration,distance&geometries=geojson&timestamps=${timestamps}`;
+
+    console.log(`[MapMatching] Requesting: ${url.substring(0, 200)}...`);
 
     const response = await fetch(url);
     if (!response.ok) {
@@ -69,5 +84,12 @@ export class MapMatchingService {
         longitude: lon
       };
     });
+  }
+
+  getStatus() {
+    return {
+      enabled: Boolean(this.baseUrl),
+      baseUrl: this.baseUrl || 'not configured'
+    };
   }
 }

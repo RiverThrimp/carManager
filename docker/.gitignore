@@ -1,0 +1,3 @@
+# Persist data locally without committing it
+postgres-data/
+redis-data/

@@ -134,7 +134,7 @@ function FitBounds({ positions }: { positions: [number, number][] }) {
 
 export const TrackMap = ({ points, loading = false }: Props) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [useSmoothing, setUseSmoothing] = useState(true);
+  const [useSmoothing, setUseSmoothing] = useState(false); // 默认关闭平滑，显示后端返回的原始数据
   const [useRouting, setUseRouting] = useState(false);
   const [routedPositions, setRoutedPositions] = useState<[number, number][] | null>(null);
   const [routingLoading, setRoutingLoading] = useState(false);
@@ -218,6 +218,9 @@ export const TrackMap = ({ points, loading = false }: Props) => {
           gap: 8
         }}
       >
+        <div style={{ fontSize: 11, color: '#666', marginBottom: 4 }}>
+          {useRouting ? '🛣️ 前端路径规划' : useSmoothing ? '📐 前端曲线平滑' : '🌐 后端 OSRM 匹配'}
+        </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Switch
             size="small"
@@ -225,7 +228,7 @@ export const TrackMap = ({ points, loading = false }: Props) => {
             onChange={setUseSmoothing}
             disabled={useRouting}
           />
-          <span style={{ fontSize: 12 }}>曲线平滑</span>
+          <span style={{ fontSize: 12 }}>前端平滑</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Switch
@@ -233,7 +236,7 @@ export const TrackMap = ({ points, loading = false }: Props) => {
             checked={useRouting}
             onChange={setUseRouting}
           />
-          <span style={{ fontSize: 12 }}>贴合道路</span>
+          <span style={{ fontSize: 12 }}>前端规划</span>
         </div>
       </div>
 
